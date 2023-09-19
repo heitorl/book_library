@@ -21,8 +21,8 @@ export class Book {
   borrowedBy?: string;
 
   @Column({ nullable: true, type: "date" })
-  startDate?: Date;
+  startDate?: Date | null;
 
   @Column({ nullable: true, type: "date" })
-  endDate?: Date;
+  endDate?: Date | null;
 }

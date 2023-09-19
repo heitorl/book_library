@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import { serializedCreateBookSchema } from "../schemas/book.schema";
 import { Book } from "../entities";
 import { AppDataSource } from "../data-source";
+import { format, addDays, parse, parseISO } from "date-fns";
+import {
+  Pagination,
+  PaginationParams,
+} from "../interfaces/pagination.interface";
 
 interface ISerializedBook {
   id: string;
@@ -22,27 +27,62 @@ class BookService {
       stripUnknown: true,
     })) as ISerializedBook;
   };
+  readAll = async ({
+    nextPage,
+    page,
+    perPage,
+    prevPage,
+  }: PaginationParams): Promise<Pagination> => {
+    try {
+      const [books, count] = await AppDataSource.getRepository(
+        Book
+      ).findAndCount({
+        skip: page, // offset
+        take: perPage, // limit
+      });
 
-  readAll = async () => {
-    const books = await AppDataSource.getRepository(Book).find({});
+      const serializedBooks = await Promise.all(
+        books.map((book) => {
+          console.log(typeof book.startDate, "typeof book.startDate");
 
-    const serializedBooks = await Promise.all(
-      books.map((book) => {
-        return {
-          id: book.id,
-          title: book.title,
-          author: book.author,
-          description: book.description,
-          available: book.available,
-          info: {
-            borrowedBy: book.borrowedBy,
-            startDate: book.startDate,
-            endDate: book.endDate,
-          },
-        };
-      })
-    );
-    return serializedBooks;
+          const startDate =
+            book.startDate &&
+            format(new Date(book.startDate + "T24:00:00Z"), "dd/MM/yyyy");
+
+          const endDate =
+            book.endDate &&
+            format(new Date(book.endDate + "T24:00:00Z"), "dd/MM/yyyy");
+
+          return {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            available: book.available,
+            info: {
+              borrowedBy: book.borrowedBy,
+              startDate,
+              endDate,
+            },
+          };
+        })
+      );
+
+      return {
+        prevPage: page <= 1 ? null : prevPage,
+        nextPage: count - page <= perPage ? null : nextPage,
+        count,
+        data: serializedBooks,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        prevPage: null,
+        nextPage: null,
+        count: 0,
+        data: [],
+      };
+    }
   };
 
   rentBook = async ({ params, body }: Request, res: Response) => {
@@ -67,20 +107,11 @@ class BookService {
       });
     }
 
-    const startDateParts = body.startDate.split("/");
-    const endDateParts = body.endDate.split("/");
+    const startDateString = body.startDate;
+    const endDateString = body.endDate;
 
-    const startDate = new Date(
-      Number(startDateParts[2]),
-      Number(startDateParts[1]) - 1,
-      Number(startDateParts[0])
-    );
-
-    const endDate = new Date(
-      Number(endDateParts[2]),
-      Number(endDateParts[1]) - 1,
-      Number(endDateParts[0])
-    );
+    const startDate = parse(startDateString, "dd/MM/yyyy", new Date());
+    const endDate = parse(endDateString, "dd/MM/yyyy", new Date());
 
     book.available = false;
     book.borrowedBy = body.borrowedBy;
@@ -91,6 +122,43 @@ class BookService {
     const updated = await AppDataSource.getRepository(Book).save(book);
 
     return updated;
+  };
+
+  returnBook = async ({ params }: Request) => {
+    try {
+      const book = await AppDataSource.getRepository(Book).findOne({
+        where: { id: params.id },
+      });
+
+      if (!book) {
+        return {
+          error: true,
+          message: "Nenhum livro foi encontrado com o ID fornecido.",
+        };
+      }
+      console.log(book, "1---");
+      book.available = true;
+
+      book.borrowedBy = "";
+      book.startDate = null;
+      book.endDate = null;
+
+      console.log(book, "2---");
+
+      const updatedBook = await AppDataSource.getRepository(Book).save(book);
+      console.log("Livro atualizado:", updatedBook);
+
+      return {
+        message: "Livro devolvido com sucesso.",
+        book: updatedBook,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        error: true,
+        message: "Ocorreu um erro ao tentar devolver o livro.",
+      };
+    }
   };
 
   delete = async ({ params }: Request, res: Response) => {
