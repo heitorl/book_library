@@ -2,8 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Book {
-  @PrimaryGeneratedColumn("increment")
-  id?: number;
+  @PrimaryGeneratedColumn("uuid")
+  id?: string;
 
   @Column()
   title: string;
@@ -11,7 +11,7 @@ export class Book {
   @Column()
   author: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", default: "", nullable: true })
   description?: string;
 
   @Column({ default: true })
@@ -20,9 +20,9 @@ export class Book {
   @Column({ nullable: true })
   borrowedBy?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "date" })
   startDate?: Date;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "date" })
   endDate?: Date;
 }
