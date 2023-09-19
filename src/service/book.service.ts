@@ -32,19 +32,20 @@ class BookService {
     page,
     perPage,
     prevPage,
+    order,
+    sort,
   }: PaginationParams): Promise<Pagination> => {
     try {
       const [books, count] = await AppDataSource.getRepository(
         Book
       ).findAndCount({
+        order: { [sort]: order },
         skip: page, // offset
         take: perPage, // limit
       });
 
       const serializedBooks = await Promise.all(
         books.map((book) => {
-          console.log(typeof book.startDate, "typeof book.startDate");
-
           const startDate =
             book.startDate &&
             format(new Date(book.startDate + "T24:00:00Z"), "dd/MM/yyyy");

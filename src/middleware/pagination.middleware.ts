@@ -16,9 +16,32 @@ export const pagination = (
   const prevPage: string = `${baseUrl}?page=${page - 1}&perPage=${perPage}`;
   const nextPage: string = `${baseUrl}?page=${page + 1}&perPage=${perPage}`;
 
+  const querySort: any = req.query.sort;
+  const queryOrder: any = req.query.order;
+
+  const orderOpts: Array<string> = ["asc", "desc"];
+  const sortOpts: Array<string> = ["available"];
+
+  let sort: string;
+  let order: string;
+
+  if (!(querySort && sortOpts.includes(querySort))) {
+    sort = "id";
+  } else {
+    sort = querySort;
+  }
+
+  if (!querySort || !(queryOrder && orderOpts.includes(queryOrder))) {
+    order = "asc";
+  } else {
+    order = queryOrder;
+  }
+
   const pagination = {
     page: perPage * (page - 1),
     perPage,
+    order,
+    sort,
     prevPage,
     nextPage,
   };
