@@ -9,13 +9,20 @@ class BookController {
     return res.status(201).json(book);
   };
   retrieve = async (_: Request, res: Response) => {
-    const books = await bookService.readAll();
+    const { pagination } = res.locals;
+    const books = await bookService.readAll(pagination);
 
     return res.status(200).json(books);
   };
 
   rentBook = async (req: Request, res: Response) => {
     const book = await bookService.rentBook(req, res);
+
+    return res.status(200).json(book);
+  };
+
+  returnBook = async (req: Request, res: Response) => {
+    const book = await bookService.returnBook(req);
 
     return res.status(200).json(book);
   };
