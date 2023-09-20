@@ -47,12 +47,10 @@ class BookService {
       const serializedBooks = await Promise.all(
         books.map((book) => {
           const startDate =
-            book.startDate &&
-            format(new Date(book.startDate + "T24:00:00Z"), "dd/MM/yyyy");
+            book.startDate && format(new Date(book.startDate), "dd/MM/yyyy");
 
           const endDate =
-            book.endDate &&
-            format(new Date(book.endDate + "T24:00:00Z"), "dd/MM/yyyy");
+            book.endDate && format(new Date(book.endDate), "dd/MM/yyyy");
 
           return {
             id: book.id,
