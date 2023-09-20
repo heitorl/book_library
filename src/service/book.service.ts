@@ -86,6 +86,7 @@ class BookService {
 
   rentBook = async ({ params, body }: Request, res: Response) => {
     const allowedProperties = ["borrowedBy", "startDate", "endDate"];
+
     const invalidProperties = Object.keys(body).filter(
       (prop) => !allowedProperties.includes(prop)
     );
@@ -96,6 +97,14 @@ class BookService {
         )} não são permitidas para atualização.`,
       });
     }
+
+    if (!body.startDate || !body.endDate) {
+      return {
+        error: true,
+        message: "A data de atual e a data de entrega precisam ser fornecidas.",
+      };
+    }
+
     const book = await AppDataSource.getRepository(Book).findOne({
       where: { id: params.id },
     });

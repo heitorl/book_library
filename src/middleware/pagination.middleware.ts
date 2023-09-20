@@ -12,7 +12,7 @@ export const pagination = (
   const perPage: number =
     queryPerPage && queryPerPage <= 10 && queryPerPage > 0 ? queryPerPage : 10;
 
-  const baseUrl: string = "http://localhost:3000/products";
+  const baseUrl: string = "https://library-book-cg8c.onrender.com/book";
   const prevPage: string = `${baseUrl}?page=${page - 1}&perPage=${perPage}`;
   const nextPage: string = `${baseUrl}?page=${page + 1}&perPage=${perPage}`;
 

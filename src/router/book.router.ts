@@ -3,6 +3,7 @@ import { bookController } from "../controllers";
 import validateSchema from "../middleware/validatedSchema";
 import { createBookSchema } from "../schemas";
 import { pagination } from "../middleware/pagination.middleware";
+import verifyBookIsRent from "../middleware/verifyBookIsRent.middleware";
 
 const bookRouter: Router = Router();
 
@@ -14,7 +15,7 @@ bookRouter.post(
 
 bookRouter.get("", pagination, bookController.retrieve);
 
-bookRouter.patch("/rentBook/:id", bookController.rentBook);
+bookRouter.patch("/rentBook/:id", verifyBookIsRent, bookController.rentBook);
 
 bookRouter.patch("/returnBook/:id", bookController.returnBook);
 
