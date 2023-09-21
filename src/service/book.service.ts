@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, request } from "express";
 import { serializedCreateBookSchema } from "../schemas/book.schema";
 import { Book } from "../entities";
 import { AppDataSource } from "../data-source";
@@ -179,6 +179,31 @@ class BookService {
     }
 
     return res.status(200).json({ message: "Book deleted" });
+  };
+
+  search = async ({ query }: Request, res: Response) => {
+    console.log(query);
+    const { keyword } = query;
+
+    if (!keyword) {
+      return res.status(400).json({ error: "A keyword parameter is required" });
+    }
+
+    try {
+      const bookRepository = AppDataSource.getRepository(Book);
+      const results = await bookRepository
+        .createQueryBuilder("book")
+        .where("book.title ILIKE :keyword", { keyword: `%${keyword}%` })
+        .orWhere("book.author ILIKE :keyword", { keyword: `%${keyword}%` })
+        .getMany();
+
+      return res.json(results);
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while searching for books" });
+    }
   };
 }
 

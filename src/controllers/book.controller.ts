@@ -30,6 +30,10 @@ class BookController {
   deleteBook = async (req: Request, res: Response) => {
     await bookService.delete(req, res);
   };
+
+  searching = async (req: Request, res: Response) => {
+    await bookService.search(req, res);
+  };
 }
 
 export default new BookController();
