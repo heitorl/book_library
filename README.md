@@ -111,6 +111,27 @@ Para adicionar suporte à ordenação, você pode usar os parâmetros sort e ord
 
 https://library-book-cg8c.onrender.com/book?sort=available&order=desc
 
+## GET https://library-book-cg8c.onrender.com/book/search?keyword=caio - Rota responsável por fazer uma busca por author ou titulo do livro compativel com a busca.
+
+#### requisição sem corpo.
+
+#### Corpo da resposta - STATUS CODE 200 - OK:
+
+```json
+[
+  {
+    "id": "392278f1-10dc-4f0c-8811-aacb428f2671",
+    "title": "reformadinha",
+    "author": "Caio Fábio",
+    "description": "",
+    "available": false,
+    "borrowedBy": "Heitor",
+    "startDate": "2023-09-19",
+    "endDate": "2023-09-25"
+  }
+]
+```
+
 ## PATCH https://library-book-cg8c.onrender.com/book/rentBook/bookId - Rota responsável por fazer o aluguel do livro.
 
 #### Corpo da requisição:
@@ -147,6 +168,16 @@ https://library-book-cg8c.onrender.com/book?sort=available&order=desc
 ```json
 {
   "message": "Livro com ID 7a71beb9-cdc3-4267-8f6a-e9eaa1251022 não encontrado."
+}
+```
+
+### Caso o Livro Já esteja alugado
+
+#### Corpo da resposta - STATUS CODE 409
+
+```json
+{
+  "message": "Livro não está disponível."
 }
 ```
 
