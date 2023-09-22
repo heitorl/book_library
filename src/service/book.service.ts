@@ -193,8 +193,12 @@ class BookService {
       const bookRepository = AppDataSource.getRepository(Book);
       const results = await bookRepository
         .createQueryBuilder("book")
-        .where("book.title ILIKE :keyword", { keyword: `%${keyword}%` })
-        .orWhere("book.author ILIKE :keyword", { keyword: `%${keyword}%` })
+        .where("unaccent(book.title) ILIKE unaccent(:keyword)", {
+          keyword: `%${keyword}%`,
+        })
+        .orWhere("unaccent(book.author) ILIKE unaccent(:keyword)", {
+          keyword: `%${keyword}%`,
+        })
         .getMany();
 
       return res.json(results);
