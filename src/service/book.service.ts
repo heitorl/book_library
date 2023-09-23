@@ -144,14 +144,11 @@ class BookService {
           message: "Nenhum livro foi encontrado com o ID fornecido.",
         };
       }
-      console.log(book, "1---");
       book.available = true;
 
       book.borrowedBy = "";
       book.startDate = null;
       book.endDate = null;
-
-      console.log(book, "2---");
 
       const updatedBook = await AppDataSource.getRepository(Book).save(book);
       console.log("Livro atualizado:", updatedBook);
@@ -201,7 +198,30 @@ class BookService {
         })
         .getMany();
 
-      return res.json(results);
+      const serializedBooks = await Promise.all(
+        results.map((book) => {
+          const startDate =
+            book.startDate && format(new Date(book.startDate), "dd/MM/yyyy");
+
+          const endDate =
+            book.endDate && format(new Date(book.endDate), "dd/MM/yyyy");
+
+          return {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            available: book.available,
+            info: {
+              borrowedBy: book.borrowedBy,
+              startDate,
+              endDate,
+            },
+          };
+        })
+      );
+
+      return res.json(serializedBooks);
     } catch (error) {
       console.error(error);
       return res
