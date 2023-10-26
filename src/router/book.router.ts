@@ -17,6 +17,8 @@ bookRouter.get("", pagination, bookController.retrieve);
 
 bookRouter.get("/search", bookController.searching);
 
+bookRouter.get("/available", bookController.returnAvailableBooks);
+
 bookRouter.patch("/rentBook/:id", verifyBookIsRent, bookController.rentBook);
 
 bookRouter.patch("/returnBook/:id", bookController.returnBook);

@@ -34,6 +34,12 @@ class BookController {
   searching = async (req: Request, res: Response) => {
     await bookService.search(req, res);
   };
+
+  returnAvailableBooks = async (req: Request, res: Response) => {
+    const books = await bookService.returnAvailableBooks(req, res);
+
+    return res.status(200).json(books);
+  };
 }
 
 export default new BookController();

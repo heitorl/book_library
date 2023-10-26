@@ -177,6 +177,44 @@ class BookService {
 
     return res.status(200).json({ message: "Book deleted" });
   };
+  returnAvailableBooks = async ({ query }: Request, res: Response) => {
+    const { value } = query;
+    const isAvailable = value === "true";
+
+    try {
+      const books = await AppDataSource.getRepository(Book).find({
+        where: { available: isAvailable },
+      });
+
+      const serializedBooks = await Promise.all(
+        books.map((book) => {
+          const startDate =
+            book.startDate && format(new Date(book.startDate), "dd/MM/yyyy");
+
+          const endDate =
+            book.endDate && format(new Date(book.endDate), "dd/MM/yyyy");
+
+          return {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            available: book.available,
+            info: {
+              borrowedBy: book.borrowedBy,
+              startDate,
+              endDate,
+            },
+          };
+        })
+      );
+      return serializedBooks;
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Erro ao buscar livros disponíveis." });
+    }
+  };
 
   search = async ({ query }: Request, res: Response) => {
     console.log(query);
